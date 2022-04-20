@@ -2,10 +2,13 @@ package handlers
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"cs.utexas.edu/zjia/faas-retwis/utils"
+	_ "github.com/go-sql-driver/mysql"
 
 	"cs.utexas.edu/zjia/faas/slib/statestore"
 	"cs.utexas.edu/zjia/faas/types"
@@ -93,6 +96,60 @@ func followSlib(ctx context.Context, env types.Environment, input *FollowInput) 
 	}
 }
 
+func followSQL(ctx context.Context, input *FollowInput) (*FollowOutput, error) {
+	db, err := sql.Open("mysql", "boki:boki@tcp(127.0.0.1:3306)/retwis")
+	if err != nil {
+		panic(err)
+	} else if err = db.Ping(); err != nil {
+		panic(err)
+	}
+	defer db.Close()
+	if err != nil {
+		return &FollowOutput{
+			Success: false,
+			Message: fmt.Sprintf("SQL failed: %v", err),
+		}, nil
+	}
+	_, user_id := strconv.Atoi(input.UserId)
+	_, followee_id := strconv.Atoi(input.FolloweeId)
+	if input.Unfollow {
+		_, err := db.ExecContext(ctx, "DELETE FROM follow WHERE user_id = ? AND followee_id = ?", user_id, followee_id)
+		if err != nil {
+			return nil, err
+		}
+		_, err = db.ExecContext(ctx, "UPDATE users SET followers = followers - 1 WHERE user_id = ?", user_id)
+	if err != nil {
+		panic(err)
+	}
+	_, err = db.ExecContext(ctx, "UPDATE users SET followees = followees - 1 WHERE user_id = ?", followee_id)
+	if err != nil {
+		panic(err)
+	}
+	} else {
+		_, err := db.ExecContext(ctx, "INSERT INTO follow (user_id, followee_id) VALUES(?, ?)", user_id, followee_id)
+		if err != nil {
+			return nil, err
+		}
+		_, err = db.ExecContext(ctx, "UPDATE users SET followers = followers + 1 WHERE user_id = ?", user_id)
+	if err != nil {
+		return nil, err
+	}
+	_, err = db.ExecContext(ctx, "UPDATE users SET followees = followees + 1 WHERE user_id = ?", followee_id)
+	if err != nil {
+		return nil, err
+	}
+	}
+	if err != nil {
+		return &FollowOutput{
+			Success: false,
+			Message: fmt.Sprintf("SQL failed: %v", err),
+		}, nil
+	}
+	return &FollowOutput{
+		Success: true,
+	}, nil
+}
+
 func followMongo(ctx context.Context, client *mongo.Client, input *FollowInput) (*FollowOutput, error) {
 	sess, err := client.StartSession(options.Session())
 	if err != nil {
@@ -145,7 +202,8 @@ func (h *followHandler) onRequest(ctx context.Context, input *FollowInput) (*Fol
 	case "slib":
 		return followSlib(ctx, h.env, input)
 	case "mongo":
-		return followMongo(ctx, h.client, input)
+		return followSQL(ctx, input)
+		//return followMongo(ctx, h.client, input)
 	default:
 		panic(fmt.Sprintf("Unknown kind: %s", h.kind))
 	}

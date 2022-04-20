@@ -2,8 +2,13 @@ package handlers
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
+	"strconv"
+
+	_ "github.com/go-sql-driver/mysql"
 
 	"cs.utexas.edu/zjia/faas-retwis/utils"
 
@@ -74,6 +79,49 @@ func profileSlib(ctx context.Context, env types.Environment, input *ProfileInput
 	return output, nil
 }
 
+func profileSQL(ctx context.Context, input *ProfileInput) (*ProfileOutput, error) {
+	db, err := sql.Open("mysql", "boki:boki@tcp(127.0.0.1:3306)/retwis")
+	if err != nil {
+		return &ProfileOutput{
+			Success: false,
+			Message: fmt.Sprintf("SQL failed: %v", err),
+		}, nil
+	} else if err = db.Ping(); err != nil {
+		return &ProfileOutput{
+			Success: false,
+			Message: fmt.Sprintf("SQL failed: %v", err),
+		}, nil
+	}
+	query := "SELECT username, followers, followees, posts FROM users WHERE user_id = ?"
+	stmt, err := db.PrepareContext(ctx, query)
+	if err != nil {
+		log.Printf("Error %s when preparing SQL statement", err)
+		return &ProfileOutput{
+			Success: false,
+			Message: fmt.Sprintf("SQL failed: %v", err),
+		}, nil
+	}
+	defer stmt.Close()
+	var username string
+	var followers int
+	var followees int
+	var posts int
+	user_id, err := strconv.Atoi(input.UserId)
+	row := stmt.QueryRowContext(ctx, user_id)
+	if err := row.Scan(&username, &followers, &followees, &posts); err != nil {
+		return &ProfileOutput{
+			Success: false,
+			Message: fmt.Sprintf("SQL failed: %v", err),
+		}, nil
+	}
+	output := &ProfileOutput{Success: true}
+	output.UserName = username
+	output.NumFollowers = followers
+	output.NumFollowees = followees
+	output.NumPosts = posts
+	return output, nil
+}
+
 func profileMongo(ctx context.Context, client *mongo.Client, input *ProfileInput) (*ProfileOutput, error) {
 	db := client.Database("retwis")
 
@@ -107,7 +155,8 @@ func (h *profileHandler) onRequest(ctx context.Context, input *ProfileInput) (*P
 	case "slib":
 		return profileSlib(ctx, h.env, input)
 	case "mongo":
-		return profileMongo(ctx, h.client, input)
+		return profileSQL(ctx, input)
+		//return profileMongo(ctx, h.client, input)
 	default:
 		panic(fmt.Sprintf("Unknown kind: %s", h.kind))
 	}

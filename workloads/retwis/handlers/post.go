@@ -2,9 +2,14 @@ package handlers
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 	"math/rand"
+	"strconv"
+
+	_ "github.com/go-sql-driver/mysql"
 
 	"cs.utexas.edu/zjia/faas-retwis/utils"
 
@@ -113,6 +118,44 @@ func postSlib(ctx context.Context, env types.Environment, input *PostInput) (*Po
 	return &PostOutput{Success: true}, nil
 }
 
+func postSQL(ctx context.Context, input *PostInput) (*PostOutput, error) {
+	db, err := sql.Open("mysql", "boki:boki@tcp(127.0.0.1:3306)/retwis")
+	if err != nil {
+		return &PostOutput{
+			Success: false,
+			Message: fmt.Sprintf("SQL post failed: %v", err),
+		}, nil
+	} else if err = db.Ping(); err != nil {
+		return &PostOutput{
+			Success: false,
+			Message: fmt.Sprintf("SQL post failed: %v", err),
+		}, nil
+	}
+	var user_id int64
+	var username string
+	user_id, err = strconv.ParseInt(input.UserId, 10, 64)
+	query := "SELECT username FROM users WHERE user_id = ?"
+	stmt, err := db.PrepareContext(ctx, query)
+	if err != nil {
+		log.Printf("Error %s when preparing SQL statement", err)
+		return nil, err
+	}
+	defer stmt.Close()
+	row := stmt.QueryRowContext(ctx, user_id)
+	if err := row.Scan(&username); err != nil {
+		return nil, err
+	}
+	_, err = db.ExecContext(ctx, "INSERT INTO posts (body, user_id, username) VALUES (?, ?, ?)", input.Body, user_id, username)
+	if err != nil {
+		return nil, err
+	}
+	_, err = db.ExecContext(ctx, "UPDATE users SET posts = posts + 1 WHERE user_id = ?", user_id)
+	if err != nil {
+		return nil, err
+	}
+	return &PostOutput{Success: true}, nil
+}
+
 func postMongo(ctx context.Context, client *mongo.Client, input *PostInput) (*PostOutput, error) {
 	sess, err := client.StartSession(options.Session())
 	if err != nil {
@@ -188,7 +231,8 @@ func (h *postHandler) onRequest(ctx context.Context, input *PostInput) (*PostOut
 	case "slib":
 		return postSlib(ctx, h.env, input)
 	case "mongo":
-		return postMongo(ctx, h.client, input)
+		return postSQL(ctx, input)
+		//return postMongo(ctx, h.client, input)
 	default:
 		panic(fmt.Sprintf("Unknown kind: %s", h.kind))
 	}

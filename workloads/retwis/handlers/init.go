@@ -2,7 +2,10 @@ package handlers
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
+
+	_ "github.com/go-sql-driver/mysql"
 
 	"cs.utexas.edu/zjia/faas-retwis/utils"
 
@@ -47,6 +50,35 @@ func initSlib(ctx context.Context, env types.Environment) error {
 	return nil
 }
 
+func initSQL(ctx context.Context) error {
+	db, err := sql.Open("boki_db", "boki:boki@tcp(127.0.0.1:3306)/retwis")
+	if err != nil {
+		panic(err)
+	} else if err = db.Ping(); err != nil {
+		panic(err)
+	}
+	query := "CREATE TABLE IF NOT EXISTS users (user_id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, username varchar(255) NOT NULL UNIQUE, password varchar(255) NOT NULL, auth varchar(255) NOT NULL, followers INT NOT NULL, followees INT NOT NULL, posts INT NOT NULL)"
+	_, err = db.ExecContext(ctx, query)
+	if err != nil {
+		panic(err)
+	}
+
+	// Create
+	query = "CREATE TABLE IF NOT EXISTS posts (post_id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, body varchar(255) NOT NULL, user_id BIGINT NOT NULL, username VARCHAR(255) NOT NULL)"
+	_, err = db.ExecContext(ctx, query)
+	if err != nil {
+		panic(err)
+	}
+
+	query = "CREATE TABLE IF NOT EXISTS follow (user_id BIGINT NOT NULL, followee_id BIGINT NOT NULL)"
+	_, err = db.ExecContext(ctx, query)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+	return nil
+}
+
 func initMongo(ctx context.Context, client *mongo.Client) error {
 	db := client.Database("retwis")
 
@@ -71,7 +103,8 @@ func (h *initHandler) Call(ctx context.Context, input []byte) ([]byte, error) {
 	case "slib":
 		err = initSlib(ctx, h.env)
 	case "mongo":
-		err = initMongo(ctx, h.client)
+		err = initSQL(ctx)
+		//err = initMongo(ctx, h.client)
 	default:
 		panic(fmt.Sprintf("Unknown kind: %s", h.kind))
 	}

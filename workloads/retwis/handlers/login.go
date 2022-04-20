@@ -2,8 +2,13 @@ package handlers
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
+	"strconv"
+
+	_ "github.com/go-sql-driver/mysql"
 
 	"cs.utexas.edu/zjia/faas-retwis/utils"
 
@@ -87,6 +92,41 @@ func loginSlib(ctx context.Context, env types.Environment, input *LoginInput) (*
 	return output, nil
 }
 
+func loginSQL(ctx context.Context, input *LoginInput) (*LoginOutput, error) {
+	db, err := sql.Open("mysql", "boki:boki@tcp(127.0.0.1:3306)/retwis")
+	if err != nil {
+		panic(err)
+	} else if err = db.Ping(); err != nil {
+		panic(err)
+	}
+	query := "SELECT user_id, auth FROM users WHERE username = ? AND password = ?"
+	stmt, err := db.PrepareContext(ctx, query)
+	if err != nil {
+		log.Printf("Error %s when preparing SQL statement", err)
+		return nil, err
+	}
+	defer stmt.Close()
+	var auth string
+	var user_id int64
+	var username string
+	var password string
+	username = input.UserName
+	password = input.Password
+	row := stmt.QueryRowContext(ctx, username, password)
+	if err := row.Scan(&auth); err != nil {
+		return &LoginOutput{
+			Success: false,
+			Message: "Incorrect password or username",
+		}, nil
+	}
+	str_user_id := strconv.FormatInt(user_id, 10)
+	return &LoginOutput{
+		Success: true,
+		UserId:  str_user_id,
+		Auth:    auth,
+	}, nil
+}
+
 func loginMongo(ctx context.Context, client *mongo.Client, input *LoginInput) (*LoginOutput, error) {
 	db := client.Database("retwis")
 
@@ -117,7 +157,8 @@ func (h *loginHandler) onRequest(ctx context.Context, input *LoginInput) (*Login
 	case "slib":
 		return loginSlib(ctx, h.env, input)
 	case "mongo":
-		return loginMongo(ctx, h.client, input)
+		return loginSQL(ctx, input)
+		//return loginMongo(ctx, h.client, input)
 	default:
 		panic(fmt.Sprintf("Unknown kind: %s", h.kind))
 	}

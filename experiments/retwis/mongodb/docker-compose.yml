@@ -34,6 +34,16 @@ services:
       - /tmp/init_mongo_rs.js:/tmp/mongo/init_mongo_rs.js
     restart: always
 
+  boki-sql:
+    image: mysql:8.0.17
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "retwis"
+      MYSQL_USER: "boki"
+      MYSQL_PASSWORD: "boki"
+    ports:
+      - "3306:3306"
+        
   boki-engine:
     image: zjia/boki:sosp-ae
     hostname: faas-engine-{{.Task.Slot}}
@@ -82,7 +92,7 @@ services:
     restart: always
 
   retwis-init:
-    image: zjia/boki-retwisbench:sosp-ae
+    image: kevinboki/boki-retwisbench:sosp-ae
     entrypoint: ["/tmp/boki/run_launcher", "/retwisbench-bin/main", "1"]
     volumes:
       - /mnt/inmem/boki:/tmp/boki
@@ -95,7 +105,7 @@ services:
     restart: always
 
   retwis-register:
-    image: zjia/boki-retwisbench:sosp-ae
+    image: kevinboki/boki-retwisbench:sosp-ae
     entrypoint: ["/tmp/boki/run_launcher", "/retwisbench-bin/main", "2"]
     volumes:
       - /mnt/inmem/boki:/tmp/boki
@@ -108,7 +118,7 @@ services:
     restart: always
 
   retwis-login:
-    image: zjia/boki-retwisbench:sosp-ae
+    image: kevinboki/boki-retwisbench:sosp-ae
     entrypoint: ["/tmp/boki/run_launcher", "/retwisbench-bin/main", "3"]
     volumes:
       - /mnt/inmem/boki:/tmp/boki
@@ -121,7 +131,7 @@ services:
     restart: always
 
   retwis-profile:
-    image: zjia/boki-retwisbench:sosp-ae
+    image: kevinboki/boki-retwisbench:sosp-ae
     entrypoint: ["/tmp/boki/run_launcher", "/retwisbench-bin/main", "4"]
     volumes:
       - /mnt/inmem/boki:/tmp/boki
@@ -134,7 +144,7 @@ services:
     restart: always
 
   retwis-follow:
-    image: zjia/boki-retwisbench:sosp-ae
+    image: kevinboki/boki-retwisbench:sosp-ae
     entrypoint: ["/tmp/boki/run_launcher", "/retwisbench-bin/main", "5"]
     volumes:
       - /mnt/inmem/boki:/tmp/boki
@@ -147,7 +157,7 @@ services:
     restart: always
 
   retwis-post:
-    image: zjia/boki-retwisbench:sosp-ae
+    image: kevinboki/boki-retwisbench:sosp-ae
     entrypoint: ["/tmp/boki/run_launcher", "/retwisbench-bin/main", "6"]
     volumes:
       - /mnt/inmem/boki:/tmp/boki
@@ -160,7 +170,7 @@ services:
     restart: always
 
   retwis-post-list:
-    image: zjia/boki-retwisbench:sosp-ae
+    image: kevinboki/boki-retwisbench:sosp-ae
     entrypoint: ["/tmp/boki/run_launcher", "/retwisbench-bin/main", "7"]
     volumes:
       - /mnt/inmem/boki:/tmp/boki

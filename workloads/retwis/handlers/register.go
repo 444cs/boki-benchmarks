@@ -2,9 +2,13 @@ package handlers
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"math/rand"
+	"strconv"
+
+	_ "github.com/go-sql-driver/mysql"
 
 	"cs.utexas.edu/zjia/faas-retwis/utils"
 
@@ -97,6 +101,37 @@ func registerSlib(ctx context.Context, env types.Environment, input *RegisterInp
 	}
 }
 
+func registerSQL(ctx context.Context, input *RegisterInput) (*RegisterOutput, error) {
+	db, err := sql.Open("mysql", "boki:boki@tcp(127.0.0.1:3306)/retwis")
+	if err != nil {
+		panic(err)
+	} else if err = db.Ping(); err != nil {
+		return &RegisterOutput{
+			Success: false,
+			Message: fmt.Sprintf("SQL failed: %v", err),
+		}, nil
+	}
+	res, err := db.ExecContext(ctx, "INSERT INTO users (username, password, auth, followers, followees, posts) VALUES (?, ?, ?, ?, ?, ?)", input.UserName, input.Password, fmt.Sprintf("%016x", rand.Uint64()), 0, 0, 0)
+	if err != nil {
+		return &RegisterOutput{
+			Success: false,
+			Message: fmt.Sprintf("SQL failed: %v", err),
+		}, nil
+	}
+	userId, err := res.LastInsertId()
+	if err != nil {
+		return &RegisterOutput{
+			Success: false,
+			Message: fmt.Sprintf("SQL failed: %v", err),
+		}, nil
+	}
+	str_user_id := strconv.FormatInt(userId, 10)
+	return &RegisterOutput{
+		Success: true,
+		UserId:  str_user_id,
+	}, nil
+}
+
 func registerMongo(ctx context.Context, client *mongo.Client, input *RegisterInput) (*RegisterOutput, error) {
 	sess, err := client.StartSession(options.Session())
 	if err != nil {
@@ -146,7 +181,8 @@ func (h *registerHandler) onRequest(ctx context.Context, input *RegisterInput) (
 	case "slib":
 		return registerSlib(ctx, h.env, input)
 	case "mongo":
-		return registerMongo(ctx, h.client, input)
+		return registerSQL(ctx, input)
+		//return registerMongo(ctx, h.client, input)
 	default:
 		panic(fmt.Sprintf("Unknown kind: %s", h.kind))
 	}

@@ -123,7 +123,7 @@ services:
     restart: always
 
   retwis-init:
-    image: zjia/boki-retwisbench:sosp-ae
+    image: kevinboki/boki-retwisbench:sosp-ae
     entrypoint: ["/tmp/boki/run_launcher", "/retwisbench-bin/main", "1"]
     volumes:
       - /mnt/inmem/boki:/tmp/boki
@@ -135,7 +135,7 @@ services:
     restart: always
 
   retwis-register:
-    image: zjia/boki-retwisbench:sosp-ae
+    image: kevinboki/boki-retwisbench:sosp-ae
     entrypoint: ["/tmp/boki/run_launcher", "/retwisbench-bin/main", "2"]
     volumes:
       - /mnt/inmem/boki:/tmp/boki
@@ -147,7 +147,7 @@ services:
     restart: always
 
   retwis-login:
-    image: zjia/boki-retwisbench:sosp-ae
+    image: kevinboki/boki-retwisbench:sosp-ae
     entrypoint: ["/tmp/boki/run_launcher", "/retwisbench-bin/main", "3"]
     volumes:
       - /mnt/inmem/boki:/tmp/boki
@@ -159,7 +159,7 @@ services:
     restart: always
 
   retwis-profile:
-    image: zjia/boki-retwisbench:sosp-ae
+    image: kevinboki/boki-retwisbench:sosp-ae
     entrypoint: ["/tmp/boki/run_launcher", "/retwisbench-bin/main", "4"]
     volumes:
       - /mnt/inmem/boki:/tmp/boki
@@ -171,7 +171,7 @@ services:
     restart: always
 
   retwis-follow:
-    image: zjia/boki-retwisbench:sosp-ae
+    image: kevinboki/boki-retwisbench:sosp-ae
     entrypoint: ["/tmp/boki/run_launcher", "/retwisbench-bin/main", "5"]
     volumes:
       - /mnt/inmem/boki:/tmp/boki
@@ -183,7 +183,7 @@ services:
     restart: always
 
   retwis-post:
-    image: zjia/boki-retwisbench:sosp-ae
+    image: kevinboki/boki-retwisbench:sosp-ae
     entrypoint: ["/tmp/boki/run_launcher", "/retwisbench-bin/main", "6"]
     volumes:
       - /mnt/inmem/boki:/tmp/boki
@@ -195,7 +195,7 @@ services:
     restart: always
 
   retwis-post-list:
-    image: zjia/boki-retwisbench:sosp-ae
+    image: kevinboki/boki-retwisbench:sosp-ae
     entrypoint: ["/tmp/boki/run_launcher", "/retwisbench-bin/main", "7"]
     volumes:
       - /mnt/inmem/boki:/tmp/boki

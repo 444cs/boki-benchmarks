@@ -2,8 +2,11 @@ package handlers
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
+	"strconv"
 
 	"cs.utexas.edu/zjia/faas-retwis/utils"
 
@@ -106,6 +109,79 @@ func postListSlib(ctx context.Context, env types.Environment, input *PostListInp
 	return output, nil
 }
 
+func postListSQL(ctx context.Context, input *PostListInput) (*PostListOutput, error) {
+	db, err := sql.Open("mysql", "boki:boki@tcp(127.0.0.1:3306)/retwis")
+	if err != nil {
+		return &PostListOutput{
+			Success: false,
+			Message: fmt.Sprintf("SQL failed: %v", err),
+		}, nil
+	} else if err = db.Ping(); err != nil {
+		return &PostListOutput{
+			Success: false,
+			Message: fmt.Sprintf("SQL failed: %v", err),
+		}, nil
+	}
+	var bodyList []interface{}
+	var usernameList []interface{}
+	var body string
+	var username string
+
+	if input.UserId == "" {
+		rows, err := db.Query("SELECT body, username FROM posts")
+		if err != nil {
+			log.Printf("Error %s when Querying", err)
+			return &PostListOutput{
+				Success: false,
+				Message: fmt.Sprintf("SQL failed: %v", err),
+			}, nil
+		}
+		for rows.Next() {
+			rows.Scan(&body, &username)
+			bodyList = append(bodyList, body)
+			usernameList = append(usernameList, username)
+		}
+	} else {
+		var user_id int
+		user_id, err := strconv.Atoi(input.UserId)
+		rows, err := db.Query("SELECT posts.body, posts.username FROM posts INNER JOIN follow ON posts.user_id = follow.user_id WHERE follow.followee_id = ?", user_id)
+		if err != nil {
+			log.Printf("Error %s when Querying", err)
+			return &PostListOutput{
+				Success: false,
+				Message: fmt.Sprintf("SQL failed: %v", err),
+			}, nil
+		}
+		for rows.Next() {
+			rows.Scan(&body, &username)
+			bodyList = append(bodyList, body)
+			usernameList = append(usernameList, username)
+		}
+	}
+	output := &PostListOutput{
+		Success: true,
+		Posts:   make([]interface{}, 0),
+	}
+
+	if input.Skip >= len(bodyList) {
+		return output, nil
+	}
+	bodyList = bodyList[0 : len(bodyList)-input.Skip]
+
+	for i := len(bodyList) - 1; i >= 0; i-- {
+		post := make(map[string]string)
+		post["body"] = bodyList[i].(string)
+		post["user"] = usernameList[i].(string)
+		if len(post) > 0 {
+			output.Posts = append(output.Posts, post)
+			if len(output.Posts) == kMaxReturnPosts {
+				break
+			}
+		}
+	}
+	return output, nil
+}
+
 func postListMongo(ctx context.Context, client *mongo.Client, input *PostListInput) (*PostListOutput, error) {
 	sess, err := client.StartSession(options.Session())
 	if err != nil {
@@ -190,7 +266,8 @@ func (h *postListHandler) onRequest(ctx context.Context, input *PostListInput) (
 	case "slib":
 		return postListSlib(ctx, h.env, input)
 	case "mongo":
-		return postListMongo(ctx, h.client, input)
+		return postListSQL(ctx, input)
+		//return postListMongo(ctx, h.client, input)
 	default:
 		panic(fmt.Sprintf("Unknown kind: %s", h.kind))
 	}
