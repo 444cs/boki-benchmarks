@@ -76,7 +76,7 @@ echo "running benchmark tests"
 ssh -q $CLIENT_HOST -- docker run -v /tmp:/tmp \
     kevinboki/boki-retwisbench:sosp-ae \
     cp /retwisbench-bin/benchmark /tmp/benchmark
-
+echo "its done, maybe not"
 ssh -q $CLIENT_HOST -- /tmp/benchmark \
     --faas_gateway=$ENTRY_HOST:8080 --fn_prefix=mongo --num_users=$NUM_USERS \
     --percentages=15,30,50,5 \
