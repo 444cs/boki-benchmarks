@@ -63,18 +63,18 @@ mkdir -p $EXP_DIR
 
 ssh -q $MANAGER_HOST -- cat /proc/cmdline >>$EXP_DIR/kernel_cmdline
 ssh -q $MANAGER_HOST -- uname -a >>$EXP_DIR/kernel_version
-
+echo "initializing"
 ssh -q $CLIENT_HOST -- curl -X POST http://$ENTRY_HOST:8080/function/mongoRetwisInit
-
+echo "creating users"
 ssh -q $CLIENT_HOST -- docker run -v /tmp:/tmp \
-    zjia/boki-retwisbench:sosp-ae \
+    kevinboki/boki-retwisbench:sosp-ae \
     cp /retwisbench-bin/create_users /tmp/create_users
 
 ssh -q $CLIENT_HOST -- /tmp/create_users \
     --faas_gateway=$ENTRY_HOST:8080 --fn_prefix=mongo --num_users=$NUM_USERS --concurrency=24
-
+echo "running benchmark tests"
 ssh -q $CLIENT_HOST -- docker run -v /tmp:/tmp \
-    zjia/boki-retwisbench:sosp-ae \
+    kevinboki/boki-retwisbench:sosp-ae \
     cp /retwisbench-bin/benchmark /tmp/benchmark
 
 ssh -q $CLIENT_HOST -- /tmp/benchmark \
