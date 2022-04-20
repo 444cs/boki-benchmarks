@@ -96,7 +96,7 @@ func followSlib(ctx context.Context, env types.Environment, input *FollowInput) 
 	}
 }
 
-func followSQL(ctx context.Context, input *FollowInput) (*FollowOutput, error) {
+func followMongo(ctx context.Context, input *FollowInput) (*FollowOutput, error) {
 	db, err := sql.Open("mysql", "boki:boki@tcp(127.0.0.1:3306)/retwis")
 	if err != nil {
 		panic(err)
@@ -125,6 +125,8 @@ func followSQL(ctx context.Context, input *FollowInput) (*FollowOutput, error) {
 	if err != nil {
 		panic(err)
 	}
+	
+	fmt.Println("unfollowed")
 	} else {
 		_, err := db.ExecContext(ctx, "INSERT INTO follow (user_id, followee_id) VALUES(?, ?)", user_id, followee_id)
 		if err != nil {
@@ -138,6 +140,7 @@ func followSQL(ctx context.Context, input *FollowInput) (*FollowOutput, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("followed")
 	}
 	if err != nil {
 		return &FollowOutput{
@@ -150,7 +153,7 @@ func followSQL(ctx context.Context, input *FollowInput) (*FollowOutput, error) {
 	}, nil
 }
 
-func followMongo(ctx context.Context, client *mongo.Client, input *FollowInput) (*FollowOutput, error) {
+func followMongo_bkp(ctx context.Context, client *mongo.Client, input *FollowInput) (*FollowOutput, error) {
 	sess, err := client.StartSession(options.Session())
 	if err != nil {
 		return nil, err
@@ -202,8 +205,8 @@ func (h *followHandler) onRequest(ctx context.Context, input *FollowInput) (*Fol
 	case "slib":
 		return followSlib(ctx, h.env, input)
 	case "mongo":
-		return followSQL(ctx, input)
-		//return followMongo(ctx, h.client, input)
+		//return followSQL(ctx, input)
+		return followMongo(ctx, input)
 	default:
 		panic(fmt.Sprintf("Unknown kind: %s", h.kind))
 	}

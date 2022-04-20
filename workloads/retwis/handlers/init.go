@@ -50,7 +50,7 @@ func initSlib(ctx context.Context, env types.Environment) error {
 	return nil
 }
 
-func initSQL(ctx context.Context) error {
+func initMongo(ctx context.Context) error {
 	db, err := sql.Open("boki_db", "boki:boki@tcp(127.0.0.1:3306)/retwis")
 	if err != nil {
 		panic(err)
@@ -62,24 +62,27 @@ func initSQL(ctx context.Context) error {
 	if err != nil {
 		panic(err)
 	}
-
+	fmt.Println("Created user table")
 	// Create
 	query = "CREATE TABLE IF NOT EXISTS posts (post_id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, body varchar(255) NOT NULL, user_id BIGINT NOT NULL, username VARCHAR(255) NOT NULL)"
 	_, err = db.ExecContext(ctx, query)
 	if err != nil {
 		panic(err)
 	}
-
+	
+	fmt.Println("Created posts table")
 	query = "CREATE TABLE IF NOT EXISTS follow (user_id BIGINT NOT NULL, followee_id BIGINT NOT NULL)"
 	_, err = db.ExecContext(ctx, query)
 	if err != nil {
 		panic(err)
 	}
+	
+	fmt.Println("Created follow table")
 	defer db.Close()
 	return nil
 }
 
-func initMongo(ctx context.Context, client *mongo.Client) error {
+func initMongo_bkp(ctx context.Context, client *mongo.Client) error {
 	db := client.Database("retwis")
 
 	if err := utils.MongoCreateCounter(ctx, db, "next_user_id"); err != nil {
@@ -103,8 +106,8 @@ func (h *initHandler) Call(ctx context.Context, input []byte) ([]byte, error) {
 	case "slib":
 		err = initSlib(ctx, h.env)
 	case "mongo":
-		err = initSQL(ctx)
-		//err = initMongo(ctx, h.client)
+		//err = initSQL(ctx)
+		err = initMongo(ctx)
 	default:
 		panic(fmt.Sprintf("Unknown kind: %s", h.kind))
 	}

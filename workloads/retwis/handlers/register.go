@@ -101,7 +101,7 @@ func registerSlib(ctx context.Context, env types.Environment, input *RegisterInp
 	}
 }
 
-func registerSQL(ctx context.Context, input *RegisterInput) (*RegisterOutput, error) {
+func registerMongo(ctx context.Context, input *RegisterInput) (*RegisterOutput, error) {
 	db, err := sql.Open("mysql", "boki:boki@tcp(127.0.0.1:3306)/retwis")
 	if err != nil {
 		panic(err)
@@ -118,6 +118,8 @@ func registerSQL(ctx context.Context, input *RegisterInput) (*RegisterOutput, er
 			Message: fmt.Sprintf("SQL failed: %v", err),
 		}, nil
 	}
+	
+	fmt.Println("registered")
 	userId, err := res.LastInsertId()
 	if err != nil {
 		return &RegisterOutput{
@@ -132,7 +134,7 @@ func registerSQL(ctx context.Context, input *RegisterInput) (*RegisterOutput, er
 	}, nil
 }
 
-func registerMongo(ctx context.Context, client *mongo.Client, input *RegisterInput) (*RegisterOutput, error) {
+func registerMongo_bkp(ctx context.Context, client *mongo.Client, input *RegisterInput) (*RegisterOutput, error) {
 	sess, err := client.StartSession(options.Session())
 	if err != nil {
 		return nil, err
@@ -181,8 +183,8 @@ func (h *registerHandler) onRequest(ctx context.Context, input *RegisterInput) (
 	case "slib":
 		return registerSlib(ctx, h.env, input)
 	case "mongo":
-		return registerSQL(ctx, input)
-		//return registerMongo(ctx, h.client, input)
+		//return registerSQL(ctx, input)
+		return registerMongo(ctx, input)
 	default:
 		panic(fmt.Sprintf("Unknown kind: %s", h.kind))
 	}

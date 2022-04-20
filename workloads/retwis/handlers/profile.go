@@ -79,7 +79,7 @@ func profileSlib(ctx context.Context, env types.Environment, input *ProfileInput
 	return output, nil
 }
 
-func profileSQL(ctx context.Context, input *ProfileInput) (*ProfileOutput, error) {
+func profileMongo(ctx context.Context, input *ProfileInput) (*ProfileOutput, error) {
 	db, err := sql.Open("mysql", "boki:boki@tcp(127.0.0.1:3306)/retwis")
 	if err != nil {
 		return &ProfileOutput{
@@ -119,10 +119,11 @@ func profileSQL(ctx context.Context, input *ProfileInput) (*ProfileOutput, error
 	output.NumFollowers = followers
 	output.NumFollowees = followees
 	output.NumPosts = posts
+	fmt.Println("display stuff out")
 	return output, nil
 }
 
-func profileMongo(ctx context.Context, client *mongo.Client, input *ProfileInput) (*ProfileOutput, error) {
+func profileMongo_bkp(ctx context.Context, client *mongo.Client, input *ProfileInput) (*ProfileOutput, error) {
 	db := client.Database("retwis")
 
 	var user bson.M
@@ -155,8 +156,8 @@ func (h *profileHandler) onRequest(ctx context.Context, input *ProfileInput) (*P
 	case "slib":
 		return profileSlib(ctx, h.env, input)
 	case "mongo":
-		return profileSQL(ctx, input)
-		//return profileMongo(ctx, h.client, input)
+		//return profileSQL(ctx, input)
+		return profileMongo(ctx, input)
 	default:
 		panic(fmt.Sprintf("Unknown kind: %s", h.kind))
 	}

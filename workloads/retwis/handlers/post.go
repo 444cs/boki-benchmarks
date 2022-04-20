@@ -118,7 +118,7 @@ func postSlib(ctx context.Context, env types.Environment, input *PostInput) (*Po
 	return &PostOutput{Success: true}, nil
 }
 
-func postSQL(ctx context.Context, input *PostInput) (*PostOutput, error) {
+func postMongo(ctx context.Context, input *PostInput) (*PostOutput, error) {
 	db, err := sql.Open("mysql", "boki:boki@tcp(127.0.0.1:3306)/retwis")
 	if err != nil {
 		return &PostOutput{
@@ -153,10 +153,11 @@ func postSQL(ctx context.Context, input *PostInput) (*PostOutput, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("posting stuff")
 	return &PostOutput{Success: true}, nil
 }
 
-func postMongo(ctx context.Context, client *mongo.Client, input *PostInput) (*PostOutput, error) {
+func postMongo_bkp(ctx context.Context, client *mongo.Client, input *PostInput) (*PostOutput, error) {
 	sess, err := client.StartSession(options.Session())
 	if err != nil {
 		return nil, err
@@ -231,8 +232,8 @@ func (h *postHandler) onRequest(ctx context.Context, input *PostInput) (*PostOut
 	case "slib":
 		return postSlib(ctx, h.env, input)
 	case "mongo":
-		return postSQL(ctx, input)
-		//return postMongo(ctx, h.client, input)
+		//return postSQL(ctx, input)
+		return postMongo_bkp(ctx, h.client, input)
 	default:
 		panic(fmt.Sprintf("Unknown kind: %s", h.kind))
 	}

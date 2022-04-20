@@ -92,7 +92,7 @@ func loginSlib(ctx context.Context, env types.Environment, input *LoginInput) (*
 	return output, nil
 }
 
-func loginSQL(ctx context.Context, input *LoginInput) (*LoginOutput, error) {
+func loginMongo(ctx context.Context, input *LoginInput) (*LoginOutput, error) {
 	db, err := sql.Open("mysql", "boki:boki@tcp(127.0.0.1:3306)/retwis")
 	if err != nil {
 		panic(err)
@@ -127,7 +127,7 @@ func loginSQL(ctx context.Context, input *LoginInput) (*LoginOutput, error) {
 	}, nil
 }
 
-func loginMongo(ctx context.Context, client *mongo.Client, input *LoginInput) (*LoginOutput, error) {
+func loginMongo_bkp(ctx context.Context, client *mongo.Client, input *LoginInput) (*LoginOutput, error) {
 	db := client.Database("retwis")
 
 	var user bson.M
@@ -144,7 +144,7 @@ func loginMongo(ctx context.Context, client *mongo.Client, input *LoginInput) (*
 			Message: "Incorrect password",
 		}, nil
 	}
-
+	fmt.Println("logged in")
 	return &LoginOutput{
 		Success: true,
 		UserId:  user["userId"].(string),
@@ -157,8 +157,8 @@ func (h *loginHandler) onRequest(ctx context.Context, input *LoginInput) (*Login
 	case "slib":
 		return loginSlib(ctx, h.env, input)
 	case "mongo":
-		return loginSQL(ctx, input)
-		//return loginMongo(ctx, h.client, input)
+		//return loginSQL(ctx, input)
+		return loginMongo(ctx, input)
 	default:
 		panic(fmt.Sprintf("Unknown kind: %s", h.kind))
 	}
