@@ -64,6 +64,9 @@ mkdir -p $EXP_DIR
 ssh -q $MANAGER_HOST -- cat /proc/cmdline >>$EXP_DIR/kernel_cmdline
 ssh -q $MANAGER_HOST -- uname -a >>$EXP_DIR/kernel_version
 echo "initializing"
+echo $CLIENT_HOST
+echo "entry host"
+echo $ENTRY_HOST
 ssh -q $CLIENT_HOST -- curl -X POST http://$ENTRY_HOST:8080/function/mongoRetwisInit
 echo "creating users"
 ssh -q $CLIENT_HOST -- docker run -v /tmp:/tmp \

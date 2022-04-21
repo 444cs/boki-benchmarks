@@ -26,6 +26,7 @@ func getMongoUri() string {
 }
 
 func CreateMongoClientOrDie(ctx context.Context) *mongo.Client {
+	fmt.Println("Inside Mongo Client")
 	uri := getMongoUri()
 	opts := options.Client()
 	opts.ApplyURI(uri)
@@ -38,6 +39,7 @@ func CreateMongoClientOrDie(ctx context.Context) *mongo.Client {
 		log.Fatalf("[FATAL] Failed to connect to mongo %s: %v", uri, err)
 		return nil
 	} else {
+		fmt.Println("returning client")
 		return client
 	}
 }

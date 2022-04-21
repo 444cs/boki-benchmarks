@@ -51,7 +51,7 @@ func initSlib(ctx context.Context, env types.Environment) error {
 }
 
 func initMongo(ctx context.Context) error {
-	db, err := sql.Open("boki_db", "boki:boki@tcp(127.0.0.1:3306)/retwis")
+	db, err := sql.Open("mysql", "boki:retwisboki@tcp(127.0.0.1:3306)/retwis")
 	if err != nil {
 		panic(err)
 	} else if err = db.Ping(); err != nil {

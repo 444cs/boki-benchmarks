@@ -29,6 +29,7 @@ func (f *funcHandlerFactory) New(env types.Environment, funcName string) (types.
 	case "RetwisPostList":
 		return handlers.NewSlibPostListHandler(env), nil
 	case "mongoRetwisInit":
+		fmt.Println("jabulani")
 		return handlers.NewMongoInitHandler(env), nil
 	case "mongoRetwisRegister":
 		return handlers.NewMongoRegisterHandler(env), nil
