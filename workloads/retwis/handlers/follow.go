@@ -97,7 +97,7 @@ func followSlib(ctx context.Context, env types.Environment, input *FollowInput) 
 }
 
 func followMongo(ctx context.Context, input *FollowInput) (*FollowOutput, error) {
-	db, err := sql.Open("mysql", "boki:boki@tcp(127.0.0.1:3306)/retwis")
+	db, err := sql.Open("mysql", "boki:retwisboki@tcp(boki.chou4ursccnw.us-east-2.rds.amazonaws.com:3306)/retwis")
 	if err != nil {
 		panic(err)
 	} else if err = db.Ping(); err != nil {

@@ -34,15 +34,15 @@ services:
       - /tmp/init_mongo_rs.js:/tmp/mongo/init_mongo_rs.js
     restart: always
 
-  boki-sql:
-    image: mysql:8.0.17
-    environment:
-      MYSQL_ROOT_PASSWORD: "root"
-      MYSQL_DATABASE: "retwis"
-      MYSQL_USER: "boki"
-      MYSQL_PASSWORD: "boki"
-    ports:
-      - "3306:3306"
+  #boki-sql:
+  #  image: mysql:8.0.17
+  #  environment:
+  #    MYSQL_ROOT_PASSWORD: "root"
+  #    MYSQL_DATABASE: "retwis"
+  #    MYSQL_USER: "boki"
+  #    MYSQL_PASSWORD: "boki"
+  #  ports:
+  #    - "3306:3306"
         
   boki-engine:
     image: zjia/boki:sosp-ae

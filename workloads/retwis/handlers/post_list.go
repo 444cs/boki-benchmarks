@@ -110,7 +110,7 @@ func postListSlib(ctx context.Context, env types.Environment, input *PostListInp
 }
 
 func postListMongo(ctx context.Context, input *PostListInput) (*PostListOutput, error) {
-	db, err := sql.Open("mysql", "boki:boki@tcp(127.0.0.1:3306)/retwis")
+	db, err := sql.Open("mysql", "boki:retwisboki@tcp(boki.chou4ursccnw.us-east-2.rds.amazonaws.com:3306)/retwis")
 	if err != nil {
 		return &PostListOutput{
 			Success: false,
