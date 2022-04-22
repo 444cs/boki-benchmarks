@@ -5,6 +5,8 @@ ROOT_DIR=`realpath $BASE_DIR/../../..`
 EXP_DIR=$BASE_DIR/results/$1
 
 CONCURRENCY=$2
+echo "Concurrency"
+echo $CONCURRENCY
 NUM_USERS=10000
 
 HELPER_SCRIPT=$ROOT_DIR/scripts/exp_helper

@@ -49,8 +49,8 @@ func createUsers() {
 }
 
 func createFollowers() {
-	userIds1 := make([]int, 0, 1024)
-	userIds2 := make([]int, 0, 1024)
+	userIds1 := make([]int, 0, 1)
+	userIds2 := make([]int, 0, 1)
 	for i := 0; i < FLAGS_num_users; i++ {
 		for j := 0; j < FLAGS_followers_per_user; j++ {
 			followeeId := 0

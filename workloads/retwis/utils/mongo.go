@@ -33,7 +33,7 @@ func CreateMongoClientOrDie(ctx context.Context) *mongo.Client {
 	opts.SetReadConcern(readconcern.Majority())
 	opts.SetWriteConcern(writeconcern.New(writeconcern.WMajority()))
 	opts.SetReadPreference(readpref.PrimaryPreferred())
-	newCtx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	newCtx, cancel := context.WithTimeout(ctx, 300*time.Second)
 	defer cancel()
 	if client, err := mongo.Connect(newCtx, opts); err != nil {
 		log.Fatalf("[FATAL] Failed to connect to mongo %s: %v", uri, err)
