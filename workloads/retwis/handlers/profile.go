@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"time"
 	"log"
 	"strconv"
 
@@ -81,6 +82,7 @@ func profileSlib(ctx context.Context, env types.Environment, input *ProfileInput
 
 func profileMongo(ctx context.Context, input *ProfileInput) (*ProfileOutput, error) {
 	db, err := sql.Open("mysql", "boki:retwisboki@tcp(boki.chou4ursccnw.us-east-2.rds.amazonaws.com:3306)/retwis")
+	ctx, _ = context.WithTimeout(context.Background(), 300*time.Second)  
 	if err != nil {
 		return &ProfileOutput{
 			Success: false,

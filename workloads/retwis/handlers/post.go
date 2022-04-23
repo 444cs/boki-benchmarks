@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"time"
 	"log"
 	"math/rand"
 	"strconv"
@@ -120,6 +121,7 @@ func postSlib(ctx context.Context, env types.Environment, input *PostInput) (*Po
 
 func postMongo(ctx context.Context, input *PostInput) (*PostOutput, error) {
 	db, err := sql.Open("mysql", "boki:retwisboki@tcp(boki.chou4ursccnw.us-east-2.rds.amazonaws.com:3306)/retwis")
+	ctx, _ = context.WithTimeout(context.Background(), 300*time.Second)  
 	if err != nil {
 		return &PostOutput{
 			Success: false,

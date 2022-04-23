@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"time"
 	"strconv"
 
 	"cs.utexas.edu/zjia/faas-retwis/utils"
@@ -97,6 +98,7 @@ func followSlib(ctx context.Context, env types.Environment, input *FollowInput) 
 }
 
 func followMongo(ctx context.Context, input *FollowInput) (*FollowOutput, error) {
+	ctx, _ = context.WithTimeout(context.Background(), 300*time.Second)  
 	db, err := sql.Open("mysql", "boki:retwisboki@tcp(boki.chou4ursccnw.us-east-2.rds.amazonaws.com:3306)/retwis")
 	if err != nil {
 		panic(err)

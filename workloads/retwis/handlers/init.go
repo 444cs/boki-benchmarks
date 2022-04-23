@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 
@@ -51,6 +52,7 @@ func initSlib(ctx context.Context, env types.Environment) error {
 }
 
 func initMongo(ctx context.Context) error {
+	ctx, _ = context.WithTimeout(context.Background(), 300*time.Second)  
 	db, err := sql.Open("mysql", "boki:retwisboki@tcp(boki.chou4ursccnw.us-east-2.rds.amazonaws.com:3306)/retwis")
 	if err != nil {
 		panic(err)

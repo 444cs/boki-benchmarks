@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"time"
 	"log"
 	"strconv"
 
@@ -94,6 +95,7 @@ func loginSlib(ctx context.Context, env types.Environment, input *LoginInput) (*
 
 func loginMongo(ctx context.Context, input *LoginInput) (*LoginOutput, error) {
 	db, err := sql.Open("mysql", "boki:retwisboki@tcp(boki.chou4ursccnw.us-east-2.rds.amazonaws.com:3306)/retwis")
+	ctx, _ = context.WithTimeout(context.Background(), 300*time.Second)  
 	if err != nil {
 		panic(err)
 	} else if err = db.Ping(); err != nil {

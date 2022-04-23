@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"math/rand"
 	"strconv"
-
+	"time"
 	_ "github.com/go-sql-driver/mysql"
 
 	"cs.utexas.edu/zjia/faas-retwis/utils"
@@ -103,6 +103,7 @@ func registerSlib(ctx context.Context, env types.Environment, input *RegisterInp
 
 func registerMongo(ctx context.Context, input *RegisterInput) (*RegisterOutput, error) {
 	db, err := sql.Open("mysql", "boki:retwisboki@tcp(boki.chou4ursccnw.us-east-2.rds.amazonaws.com:3306)/retwis")
+	ctx, _ = context.WithTimeout(context.Background(), 300*time.Second)  
 	if err != nil {
 		panic(err)
 	} else if err = db.Ping(); err != nil {

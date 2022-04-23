@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"time"
 	"log"
 	"strconv"
 
@@ -145,6 +146,7 @@ func postListMongo(ctx context.Context, input *PostListInput) (*PostListOutput, 
 		var user_id int
 		user_id, err := strconv.Atoi(input.UserId)
 		rows, err := db.Query("SELECT posts.body, posts.username FROM posts INNER JOIN follow ON posts.user_id = follow.user_id WHERE follow.followee_id = ?", user_id)
+		ctx, _ = context.WithTimeout(context.Background(), 300*time.Second)  
 		if err != nil {
 			log.Printf("Error %s when Querying", err)
 			return &PostListOutput{
