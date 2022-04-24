@@ -69,7 +69,7 @@ echo "initializing"
 echo $CLIENT_HOST
 echo "entry host"
 echo $ENTRY_HOST
-ssh -q $CLIENT_HOST -- curl -X POST http://$ENTRY_HOST:8080/function/mongoRetwisInit
+#ssh -q $CLIENT_HOST -- curl -X POST http://$ENTRY_HOST:8080/function/mongoRetwisInit
 echo "creating users"
 ssh -q $CLIENT_HOST -- docker run -v /tmp:/tmp \
     kevinboki/boki-retwisbench:sosp-ae \
