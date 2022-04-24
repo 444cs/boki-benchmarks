@@ -106,12 +106,7 @@ func registerMongo(ctx context.Context, input *RegisterInput) (*RegisterOutput, 
 	ctx, _ = context.WithTimeout(context.Background(), 300*time.Second)  
 	if err != nil {
 		panic(err)
-	} else if err = db.Ping(); err != nil {
-		return &RegisterOutput{
-			Success: false,
-			Message: fmt.Sprintf("SQL failed: %v", err),
-		}, nil
-	}
+	} 
 	res, err := db.ExecContext(ctx, "INSERT INTO users (username, password, auth, followers, followees, posts) VALUES (?, ?, ?, ?, ?, ?)", input.UserName, input.Password, fmt.Sprintf("%016x", rand.Uint64()), 0, 0, 0)
 	if err != nil {
 		return &RegisterOutput{

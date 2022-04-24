@@ -88,12 +88,7 @@ func profileMongo(ctx context.Context, input *ProfileInput) (*ProfileOutput, err
 			Success: false,
 			Message: fmt.Sprintf("SQL failed: %v", err),
 		}, nil
-	} else if err = db.Ping(); err != nil {
-		return &ProfileOutput{
-			Success: false,
-			Message: fmt.Sprintf("SQL failed: %v", err),
-		}, nil
-	}
+	} 
 	query := "SELECT username, followers, followees, posts FROM users WHERE user_id = ?"
 	stmt, err := db.PrepareContext(ctx, query)
 	if err != nil {

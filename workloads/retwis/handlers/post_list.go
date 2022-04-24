@@ -117,11 +117,6 @@ func postListMongo(ctx context.Context, input *PostListInput) (*PostListOutput, 
 			Success: false,
 			Message: fmt.Sprintf("SQL failed: %v", err),
 		}, nil
-	} else if err = db.Ping(); err != nil {
-		return &PostListOutput{
-			Success: false,
-			Message: fmt.Sprintf("SQL failed: %v", err),
-		}, nil
 	}
 	var bodyList []interface{}
 	var usernameList []interface{}

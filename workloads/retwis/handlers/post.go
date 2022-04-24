@@ -127,12 +127,7 @@ func postMongo(ctx context.Context, input *PostInput) (*PostOutput, error) {
 			Success: false,
 			Message: fmt.Sprintf("SQL post failed: %v", err),
 		}, nil
-	} else if err = db.Ping(); err != nil {
-		return &PostOutput{
-			Success: false,
-			Message: fmt.Sprintf("SQL post failed: %v", err),
-		}, nil
-	}
+	} 
 	var user_id int64
 	var username string
 	user_id, err = strconv.ParseInt(input.UserId, 10, 64)

@@ -98,8 +98,6 @@ func loginMongo(ctx context.Context, input *LoginInput) (*LoginOutput, error) {
 	ctx, _ = context.WithTimeout(context.Background(), 300*time.Second)  
 	if err != nil {
 		panic(err)
-	} else if err = db.Ping(); err != nil {
-		panic(err)
 	}
 	query := "SELECT user_id, auth FROM users WHERE username = ? AND password = ?"
 	stmt, err := db.PrepareContext(ctx, query)

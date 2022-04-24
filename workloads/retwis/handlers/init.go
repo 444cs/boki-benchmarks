@@ -56,8 +56,6 @@ func initMongo(ctx context.Context) error {
 	db, err := sql.Open("mysql", "boki:retwisboki@tcp(boki.chou4ursccnw.us-east-2.rds.amazonaws.com:3306)/retwis")
 	if err != nil {
 		panic(err)
-	} else if err = db.Ping(); err != nil {
-		panic(err)
 	}
 	query := "CREATE TABLE IF NOT EXISTS users (user_id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, username varchar(255) NOT NULL UNIQUE, password varchar(255) NOT NULL, auth varchar(255) NOT NULL, followers INT NOT NULL, followees INT NOT NULL, posts INT NOT NULL)"
 	_, err = db.ExecContext(ctx, query)

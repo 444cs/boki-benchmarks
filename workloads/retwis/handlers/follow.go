@@ -102,8 +102,6 @@ func followMongo(ctx context.Context, input *FollowInput) (*FollowOutput, error)
 	db, err := sql.Open("mysql", "boki:retwisboki@tcp(boki.chou4ursccnw.us-east-2.rds.amazonaws.com:3306)/retwis")
 	if err != nil {
 		panic(err)
-	} else if err = db.Ping(); err != nil {
-		panic(err)
 	}
 	defer db.Close()
 	if err != nil {
