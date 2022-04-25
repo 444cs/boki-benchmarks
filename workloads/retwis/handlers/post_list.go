@@ -176,6 +176,7 @@ func postListMongo(ctx context.Context, input *PostListInput) (*PostListOutput, 
 			}
 		}
 	}
+	defer db.Close()
 	fmt.Println("printing stuff out")
 	return output, nil
 }

@@ -116,6 +116,7 @@ func profileMongo(ctx context.Context, input *ProfileInput) (*ProfileOutput, err
 	output.NumFollowers = followers
 	output.NumFollowees = followees
 	output.NumPosts = posts
+	defer db.Close()
 	fmt.Println("display stuff out")
 	return output, nil
 }

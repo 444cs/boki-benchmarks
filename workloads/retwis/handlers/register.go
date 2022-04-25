@@ -124,6 +124,7 @@ func registerMongo(ctx context.Context, input *RegisterInput) (*RegisterOutput, 
 		}, nil
 	}
 	str_user_id := strconv.FormatInt(userId, 10)
+	defer db.Close()
 	return &RegisterOutput{
 		Success: true,
 		UserId:  str_user_id,

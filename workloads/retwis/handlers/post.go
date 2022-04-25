@@ -150,6 +150,7 @@ func postMongo(ctx context.Context, input *PostInput) (*PostOutput, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer db.Close()
 	fmt.Println("posting stuff")
 	return &PostOutput{Success: true}, nil
 }

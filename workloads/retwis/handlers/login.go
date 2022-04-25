@@ -119,6 +119,7 @@ func loginMongo(ctx context.Context, input *LoginInput) (*LoginOutput, error) {
 			Message: "Incorrect password or username",
 		}, nil
 	}
+	defer db.Close()
 	str_user_id := strconv.FormatInt(user_id, 10)
 	return &LoginOutput{
 		Success: true,

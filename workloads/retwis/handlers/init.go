@@ -57,7 +57,22 @@ func initMongo(ctx context.Context) error {
 	if err != nil {
 		panic(err)
 	}
-	query := "CREATE TABLE IF NOT EXISTS users (user_id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, username varchar(255) NOT NULL UNIQUE, password varchar(255) NOT NULL, auth varchar(255) NOT NULL, followers INT NOT NULL, followees INT NOT NULL, posts INT NOT NULL)"
+	query := "DROP TABLE users"
+	_, err = db.ExecContext(ctx, query)
+	if err != nil {
+		panic(err)
+	}
+	query = "DROP TABLE posts"
+	_, err = db.ExecContext(ctx, query)
+	if err != nil {
+		panic(err)
+	}
+	query = "DROP TABLE follow"
+	_, err = db.ExecContext(ctx, query)
+	if err != nil {
+		panic(err)
+	}
+	query = "CREATE TABLE IF NOT EXISTS users (user_id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, username varchar(255) NOT NULL UNIQUE, password varchar(255) NOT NULL, auth varchar(255) NOT NULL, followers INT NOT NULL, followees INT NOT NULL, posts INT NOT NULL)"
 	_, err = db.ExecContext(ctx, query)
 	if err != nil {
 		panic(err)
